@@ -1,0 +1,5 @@
+%%[FOR @counter = 1 TO Subtract(RowCount(@articulos),1) DO]%% 
+    <p> 
+        %%=V(Field(Row(@articulos,@counter),1))=%% 
+    </p> 
+%%[NEXT]%%
