@@ -1,0 +1,24 @@
+%%[ 
+    /*Declaramos las variables*/ 
+    VAR @idCliente,@articulosIds,@articulo,@tiposDeArticulos,@stringDeExclusion,@nombreArticulo, 
+    @idArticulo,@articulo,@tipoDeArticulo,@articulos 
+    /*Inicializamos las variables*/ 
+    SET @idCliente = AttributeValue('IdCliente') 
+    SET @articulosIds = LookUpRows('ArtículosPorCliente','IdCliente',@idCliente) 
+    SET @tiposDeArticulos = '' 
+    SET @stringDeExclusion = '' 
+    SET @nombresArticulos = '' 
+    FOR @counter = 1 TO RowCount(@articulosIds) DO 
+        SET @idArticulo = Field(Row(@articulosIds,@counter),'IdArtículo') 
+        SET @articulo = LookUpRows('Artículos','IdArtículo',@idArticulo) 
+        SET @nombreArticulo = Field(Row(@articulo,1),'NombreDelArtículo') 
+        SET @tipoDeArticulo = Field(Row(@articulo,1),'TipoDeArtículo') 
+        SET @nombresArticulos = Concat(@nombresArticulos,@nombreArticulo,',') 
+    IF indexOf(@stringDeExclusion,@tipoDeArticulo)==0 THEN 
+        SET @tiposDeArticulos = Concat(@tiposDeArticulos,@tipoDeArticulo,',') 
+        SET @stringDeExclusion =Concat(@stringDeExclusion,@tipoDeArticulo,',') 
+    ENDIF 
+    NEXT 
+    SET @rSetTiposArticulos = BuildRowSetFromString(@tiposDeArticulos,',') 
+    SET @articulos = BuildRowSetFromString(@nombresArticulos,',') 
+]%%
