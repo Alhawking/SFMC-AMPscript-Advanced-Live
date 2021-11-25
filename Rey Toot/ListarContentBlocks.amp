@@ -1,0 +1,5 @@
+%%[FOR @counter = 1 TO Subtract(RowCount(@rSetTiposArticulos),1) DO  
+    set @name = Concat("Content Builder\Ampscript Advanced\Email Rey Toot\Assets\",Field(Row(@rSetTiposArticulos,@counter),1)) 
+]%% 
+%%=ContentBlockByName(@name)=%% 
+%%[NEXT]%%
