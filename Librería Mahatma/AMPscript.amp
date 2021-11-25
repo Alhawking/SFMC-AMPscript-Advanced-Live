@@ -1,1 +1,8 @@
-
+%%[ 
+    VAR @subscriber,@firstName,@lastName,@subscriberKey 
+    SET @subscriberKey = QueryParameter('_subscriberkey')/*Para obtener el subskey se usa AttributeValue*/ 
+    SET @subscriber = LookUpRows('Clientes2','IdCliente',@subscriberKey) 
+    SET @firstName = Field(Row(@subscriber,1),'Nombre') 
+    SET @lastName = Field(Row(@subscriber,1),'Apellido') 
+    SET @email = Field(Row(@subscriber,1),'Email') 
+]%%
