@@ -1,0 +1,50 @@
+%%[ 
+    VAR @response 
+    IF RequestParameter('Enviado') == 'true' THEN 
+        SET @email = RequestParameter('email') 
+        SET @firstName = RequestParameter('firstName') 
+        SET @credenciales = LookUpRows('APIIntegration','Nombre','Nuevo Suscriptor') 
+        SET @row = Row(@credenciales,1) 
+        SET @clientId = Base64Decode(Field(@row,'ClientId'),'UTF-8') 
+        SET @clientSecret = Base64Decode(Field(@row,'ClientSecret'),'UTF-8') 
+        SET @tenantid =Field(@row,'TenantId') 
+        SET @baseAuthURL = Concat('https://',@tenantid,'.auth.marketingcloudapis.com') 
+        SET @baseURL = Concat('https://',@tenantid,'.rest.marketingcloudapis.com') 
+        SET @authURL = Concat(@baseAuthURL,'/v2/token') 
+        SET @payload = Concat('{ 
+            "grant_type":"client_credentials",', 
+            '"client_id":"', 
+            @clientId, 
+            '","client_secret":"', 
+            @clientSecret, 
+            '"}') 
+        SET @request = HTTPPost('https://mc8jcbs17csh5mwmtvv9b1n4r6yq.auth.marketingcloudapis.com/v2/token','application/json',@payload,@response)  
+        IF @request == "200" THEN]%%  
+    <script runat="server"> 
+        Platform.Load("Core","1.1.1"); 
+        var response = Variable.GetValue("@response"); 
+        var responseJSON = Platform.Function.ParseJSON(response); 
+        Variable.SetValue("@token",responseJSON.access_token); 
+        Variable.SetValue("@restInstance",responseJSON.rest_instance_url); 
+    </script> 
+        %%[ENDIF]%% 
+    %%[ 
+        SET @payload = Concat('{ 
+            "To": { 
+                "Address": "',@email,'", 
+                "SubscriberKey": "',@email,'", 
+                "ContactAttributes": { 
+                "SubscriberAttributes": { 
+                "FirstName": "',@firstName,'" 
+            } 
+        } 
+    } 
+}') 
+        SET @bearerToken = Concat('Bearer ',@token) 
+        SET @endpoint = Concat(@restInstance,'messaging/v1/messageDefinitionSends/key:9781/send') 
+        SET @request = HTTPPost(@endpoint,'application/json',@payload,@response,'Authorization',@bearerToken) 
+        IF @request == "202" THEN 
+            Redirect(CloudPagesURL(734,'firstName',@firstName)) 
+        ENDIF 
+    ENDIF 
+    ]%%
