@@ -1,0 +1,16 @@
+%%[ 
+    VAR @subgeneros,@subgeneroActual,@nombre,@coincidencias,@id 
+    SET @subgeneros = LookUpRows('Subgéneros','Get DE',1) 
+    FOR @counter = 1 TO RowCount(@subgeneros) DO 
+        SET @subgeneroActual = LookUpRows('Subgéneros','IdSubgénero',Field(Row(@subgeneros,@counter),'IdSubgénero')) 
+        SET @nombre = Field(Row(@subgeneroActual,1),'NombreSubgénero') 
+        SET @id = Field(Row(@subgeneroActual,1),'IdSubgénero') 
+        SET @coincidencias = LookUpRows('SubgénerosPorCliente','IdSubgénero',@id,'IdCliente',@subscriberKey) 
+    ]%%  
+        <div class="col-12 col-sm-6 col-md-4 col-xxl-3"> 
+            <input class="form-check-input" type="checkbox" value="%%=v(@id)=%%" name="%%=v(@id)=%%" id="check-%%=v(@nombre)=%%" %%=Iif(RowCount(@coincidencias)>0,'checked','')=%%> 
+            <label class="form-check-label" for="check-%%=v(@nombre)=%%" > 
+                %%=v(@nombre)=%% 
+            </label> 
+        </div> 
+    %%[NEXT]%%
