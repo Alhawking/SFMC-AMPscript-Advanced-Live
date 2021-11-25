@@ -1,0 +1,24 @@
+%%[ 
+    IF RequestParameter('enviado') == 'true' THEN 
+        SET @firstName = RequestParameter('firstName') 
+        SET @lastName = RequestParameter('lastName') 
+        SET @email = RequestParameter('email') 
+        SET @subscriberkey = QueryParameter('_subscriberkey') 
+        SET @result = UpdateData('Clientes2',1,'IdCliente',@subscriberKey,'Nombre',@firstName,'Apellido',@lastName,'Email',@email) 
+        SET @subgeneros = LookUpRows('Subgéneros','Get DE',1) 
+        SET @checkBoxes = '' 
+        FOR @counter = 1 TO RowCount(@subgeneros) DO 
+            SET @subgeneroActual = LookUpRows('Subgéneros','IdSubgénero',Field(Row(@subgeneros,@counter),'IdSubgénero')) 
+            SET @id = Field(Row(@subgeneroActual,1),'IdSubgénero') 
+            SET @checkBox = RequestParameter(TreatAsContent(@id))
+            SET @checkBoxes = Concat (@checkBoxes,@checkBox) 
+            SET @coincidencias = LookUpRows('SubgénerosPorCliente','IdSubgénero',@id,'IdCliente',@subscriberKey) 
+            IF NOT Empty(@checkBox) AND RowCount(@coincidencias) == 0 THEN 
+                InsertData('SubgénerosPorCliente','IdSubgénero',@id,'IdCliente',@subscriberKey) 
+            ELSEIF empty(@checkBox) AND RowCount(@coincidencias) > 0 THEN 
+                DeleteData('SubgénerosPorCliente','IdSubgénero',@id,'IdCliente',@subscriberKey)             
+            ENDIF 
+        NEXT 
+        Redirect(CloudPagesURL(724,'_subscriberkey',@subscriberKey,'success','true')) 
+    ENDIF 
+]%%
